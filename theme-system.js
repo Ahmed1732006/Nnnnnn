@@ -169,11 +169,6 @@
     injectDecorations(def.decorations || '');
     window.__midadThemeKey = key;
     document.documentElement.dataset.midadTheme = key;
-    try {
-      const uid = state.user?.id || (JSON.parse(localStorage.getItem('midad_theme_cache') || 'null') || {}).uid || null;
-      const file = String((THEME_MAP[key] || THEME_MAP['theme-1']).theme_js || '').split('/').pop();
-      localStorage.setItem('midad_theme_cache', JSON.stringify({ uid, key, file }));
-    } catch (_) {}
     if (!silent) toast('تم تغيير السمة');
     return key;
   }
@@ -197,30 +192,16 @@
     const s = await session();
     if (!s) return;
     state.user = s.user;
-
-    // تطبيق السمة المحفوظة فورًا (بدون انتظار السيرفر) لو تخص نفس المستخدم
-    let cachedKey = null;
-    try {
-      const c = JSON.parse(localStorage.getItem('midad_theme_cache') || 'null');
-      if (c && c.key && (!c.uid || c.uid === s.user.id)) cachedKey = canonicalKey(c.key);
-    } catch (_) {}
-    if (cachedKey) { try { await applyTheme(cachedKey, true); } catch (_) { cachedKey = null; } }
-
-    // طلبات السيرفر بالتوازي بدل ما تتنفذ واحد ورا التاني
-    const [profile, , prefRes] = await Promise.all([
-      getProfile(s.user.id).catch(() => null),
-      loadThemes().catch(() => state.themes),
-      Promise.resolve(client.from('user_theme_preferences').select('theme_id').eq('user_id', s.user.id).maybeSingle()).catch(() => ({ data: null }))
-    ]);
-    state.profile = profile;
+    state.profile = await getProfile(s.user.id).catch(() => null);
     state.isAdmin = ['admin', 'super_admin'].includes(state.profile?.role);
+    await loadThemes();
     let targetKey = 'theme-1';
     try {
-      const pref = prefRes && prefRes.data;
+      const { data: pref } = await client.from('user_theme_preferences').select('theme_id').eq('user_id', s.user.id).maybeSingle();
       const target = pref?.theme_id ? state.themes.find(x => String(x.id) === String(pref.theme_id)) : null;
       targetKey = canonicalKey(target?.theme_key || state.themes.find(x => x.is_default)?.theme_key || 'theme-1');
     } catch (_) {}
-    if (!(cachedKey && cachedKey === targetKey && window.__midadThemeKey === targetKey)) await applyTheme(targetKey, true);
+    await applyTheme(targetKey, true);
     if (state.isAdmin && !window.__midadViewAsMember) { setupAdminUI(); observeThemeButton(); }
     else { await setupUserThemeButton(); observeThemeButton(); }
   }
