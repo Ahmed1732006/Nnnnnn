@@ -199,6 +199,14 @@
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
+        // لو الصفحة مفتوحة جوه iframe من الموقع، شريط الموقع الأساسي أصلاً موجود فوق
+        // فبنخفي شريط العارض ده عشان مايتكررش، والفتح المباشر (زي Gemini) يفضل زي ما هو بدون أي تغيير
+        if (window.self !== window.top) {
+            document.querySelector('.viewer-header').style.display = 'none';
+            document.getElementById('upload-section').style.marginTop = '0';
+            document.getElementById('pdf-images-container').style.marginTop = '0';
+        }
+
         let currentPdfBlobUrl = null;
 
         function handleFileSelect(event) {
@@ -331,6 +339,8 @@
 
             const container = document.getElementById('pdf-images-container');
             let scale = 1, startDistance = 0, startScale = 1;
+            let hadPinch = false; // بنتتبع هل الجيستشر ده كان فيه بينش أصلاً
+            let lastTapTime = 0;
 
             function distance(t1, t2) {
                 return Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
@@ -348,6 +358,7 @@
                 if (e.touches.length === 2) {
                     startDistance = distance(e.touches[0], e.touches[1]);
                     startScale = scale;
+                    hadPinch = true; // ده بينش فعلي، مش تاب
                 }
             }, { passive: true });
 
@@ -359,19 +370,22 @@
                 applyScale();
             }, { passive: false });
 
+            // الزوم بيفضل زي ما هو بعد ما تشيل صوابعك (مطلوب مايتلغيش تلقائي)
             container.addEventListener('touchend', function (e) {
                 if (e.touches.length < 2) startDistance = 0;
-            }, { passive: true });
 
-            // دبل تاب لإرجاع الحجم الطبيعي
-            let lastTapTime = 0;
-            container.addEventListener('touchend', function () {
-                const now = Date.now();
-                if (now - lastTapTime < 300) {
-                    scale = 1;
-                    applyScale();
+                if (e.touches.length === 0) {
+                    // دبل تاب لإرجاع الحجم الطبيعي - بس لو كانت لمسة واحدة حقيقية، مش نتيجة رفع صباعين بينش
+                    if (!hadPinch) {
+                        const now = Date.now();
+                        if (now - lastTapTime < 300) {
+                            scale = 1;
+                            applyScale();
+                        }
+                        lastTapTime = now;
+                    }
+                    hadPinch = false;
                 }
-                lastTapTime = now;
             }, { passive: true });
         })();
     </script>
