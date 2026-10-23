@@ -18,52 +18,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
     <title>IN THE VOID</title>
 
-    <script>
-    /* PERF: تحميل صور الكروت (خلفيات CSS) عند الاقتراب منها فقط بدل تحميلها كلها مرة واحدة */
-    (function(){
-      var io='IntersectionObserver' in window?new IntersectionObserver(function(es){
-        es.forEach(function(e){ if(e.isIntersecting){ apply(e.target); io.unobserve(e.target); } });
-      },{rootMargin:'400px'}):null;
-      function apply(el){
-        var u=el.getAttribute('data-bg'); if(!u) return; el.removeAttribute('data-bg');
-        el.style.backgroundImage='url("'+u.replace(/"/g,'%22')+'")';
-      }
-      function watch(el){ io?io.observe(el):apply(el); }
-      function scan(root){ if(root.querySelectorAll) root.querySelectorAll('[data-bg]').forEach(watch); }
-      new MutationObserver(function(ms){
-        ms.forEach(function(m){ m.addedNodes.forEach(function(n){
-          if(n.nodeType!==1) return;
-          if(n.hasAttribute('data-bg')) watch(n);
-          scan(n);
-        }); });
-      }).observe(document.documentElement,{childList:true,subtree:true});
-      document.addEventListener('DOMContentLoaded',function(){ scan(document); });
-    })();
-    </script>
-    <!-- PERF: اتصال مبكر بالخوادم -->
-    <link rel="preconnect" href="https://clobfjrjhdysmqhbwzlc.supabase.co" crossorigin />
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="session-ended.js"></script>
+
+    <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
-
-    <!-- Supabase (مع بديل احتياطي لو الرابط الأول فشل) -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
-    <script>window.supabase||document.write('<script src="https://unpkg.com/@supabase/supabase-js@2" crossorigin="anonymous"><\/script>');</script>
-    <script>window.supabase||document.write('<script src="https://fastly.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"><\/script>');</script>
-
-    <!-- Fonts & Icons: غير معطِّلة لعرض الصفحة (الصفحة تظهر فورًا والخط/الأيقونات تلحق) -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" crossorigin="anonymous" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'" crossorigin="anonymous" />
-    <noscript>
-        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    </noscript>
-    <script>
-    /* PERF: ابدأ تحميل ملف السمة المحفوظة فورًا (قبل ما التطبيق يخلّص) بدل ما ينتظر 4 طلبات للسيرفر */
-    try{var __tc=JSON.parse(localStorage.getItem('midad_theme_cache')||'null');
-      if(__tc&&/^theme-[a-z0-9-]+$/i.test(__tc.key)){var __l=document.createElement('link');__l.rel='preload';__l.as='script';__l.href='themes/'+__tc.file;document.head.appendChild(__l);}}catch(e){}
-    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
 
 
@@ -295,15 +258,73 @@
 @media(max-width:390px){.storage-replica-check{font-size:.66rem;padding:6px 4px}.storage-replica-check input{width:15px;height:15px}.storage-info-grid{gap:6px}.storage-info-box{padding:10px 5px}}
 </style>
 
+
+<style id="site-update-style">
+/* ===== تحديث الموقع: أزرار + مودال ===== */
+.um-card-actions button.su-btn{background:linear-gradient(135deg,#fff7ed,#ffedd5)!important;border:1px solid #fdba74!important;color:#c2410c!important}
+.um-card-actions button.su-btn.end{background:linear-gradient(135deg,#ecfdf5,#d1fae5)!important;border-color:#6ee7b7!important;color:#047857!important}
+.su-top-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:14px;padding:11px 18px;font:900 14px Cairo,system-ui,sans-serif;color:#fff;cursor:pointer;background:linear-gradient(135deg,#f97316,#ea580c);box-shadow:0 8px 20px rgba(234,88,12,.28);transition:transform .15s,box-shadow .15s}
+.su-top-btn:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(234,88,12,.36)}
+.su-top-btn.end{background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 8px 20px rgba(5,150,105,.26)}
+.um-head-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.su-chip{display:inline-flex;align-items:center;gap:5px;font:800 11px Cairo,sans-serif;padding:3px 9px;border-radius:99px;background:#fff7ed;color:#c2410c;border:1px solid #fdba74}
+.su-overlay{position:fixed;inset:0;z-index:2147483001;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(8,12,22,.62);backdrop-filter:blur(8px);animation:suFade .2s ease}
+.su-modal{width:min(580px,100%);max-height:92vh;overflow:auto;background:var(--surface,#fff);color:var(--text,#0f172a);border:1px solid var(--border,#e2e8f0);border-radius:24px;padding:24px 22px;box-shadow:0 30px 80px rgba(0,0,0,.35);font-family:Cairo,system-ui,sans-serif;text-align:right}
+.su-modal-icon{width:62px;height:62px;border-radius:20px;display:grid;place-items:center;margin:0 auto 12px;font-size:28px;color:#fff;background:linear-gradient(135deg,#f97316,#ea580c);box-shadow:0 10px 24px rgba(234,88,12,.35)}
+.su-modal h3{margin:0 0 6px;text-align:center;font-size:21px;font-weight:900}
+.su-sub{margin:0 0 16px;text-align:center;color:var(--text-muted,#64748b);font-size:13.5px;line-height:1.8}
+.su-seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:5px;border-radius:14px;background:var(--surface-alt,#f1f5f9);border:1px solid var(--border,#e2e8f0);margin-bottom:12px}
+.su-seg label{position:relative;cursor:pointer}
+.su-seg input{position:absolute;opacity:0;pointer-events:none}
+.su-seg span{display:block;text-align:center;padding:10px 8px;border-radius:10px;font-weight:800;font-size:13.5px;color:var(--text,#0f172a);opacity:.72;transition:.15s}
+.su-seg input:checked+span{opacity:1;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;box-shadow:0 5px 14px rgba(234,88,12,.3)}
+.su-pick{border:1px solid var(--border,#e2e8f0);border-radius:16px;padding:12px;margin-bottom:14px;background:var(--surface-alt,#f8fafc)}
+.su-pick-head{display:flex;flex-direction:column;gap:2px;margin-bottom:8px}
+.su-pick-head b{font-size:14px;font-weight:900}
+.su-pick-head small{color:var(--text-muted,#64748b);font-size:12px}
+.su-search{width:100%;box-sizing:border-box;border:1px solid var(--border,#e2e8f0);border-radius:12px;padding:10px 12px;font:600 13.5px Cairo,sans-serif;background:var(--surface,#fff);color:inherit;outline:none}
+.su-search:focus{border-color:#f97316;box-shadow:0 0 0 3px rgba(249,115,22,.15)}
+.su-tools{display:flex;gap:14px;margin:8px 2px}
+.su-link{background:none;border:0;color:#ea580c;font:800 12.5px Cairo,sans-serif;cursor:pointer;padding:0}
+.su-list{max-height:230px;overflow:auto;display:flex;flex-direction:column;gap:6px}
+.su-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;background:var(--surface,#fff);border:1px solid var(--border,#e2e8f0);cursor:pointer}
+.su-row:has(input:checked){border-color:#fb923c;background:#fff7ed}
+.su-row input{width:18px;height:18px;accent-color:#ea580c;flex:0 0 auto}
+.su-av{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:900;color:#fff;background:linear-gradient(135deg,#6366f1,#0ea5e9);overflow:hidden;flex:0 0 auto}
+.su-av img{width:100%;height:100%;object-fit:cover}
+.su-nm{display:flex;flex-direction:column;min-width:0;flex:1}
+.su-nm b{font-size:13.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.su-nm small{color:var(--text-muted,#64748b);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.su-field-title{font-weight:900;font-size:14px;margin:4px 0 8px}
+.su-preview{padding:14px 16px;border-radius:16px;background:linear-gradient(135deg,#fff7ed,#ffedd5);border:1px dashed #fb923c;color:#7c2d12;font-weight:800;font-size:15.5px;line-height:1.9}
+.su-modal textarea{width:100%;box-sizing:border-box;min-height:110px;resize:vertical;border:1px solid var(--border,#e2e8f0);border-radius:14px;padding:12px 14px;font:700 15px/1.9 Cairo,sans-serif;background:var(--surface,#fff);color:inherit;outline:none}
+.su-modal textarea:focus{border-color:#f97316;box-shadow:0 0 0 3px rgba(249,115,22,.15)}
+.su-count{display:block;direction:ltr;text-align:left;color:var(--text-muted,#64748b);font-size:11.5px;margin-top:4px}
+.su-summary{margin:14px 0 4px;padding:11px 14px;border-radius:14px;background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;font-weight:800;font-size:13.5px;text-align:center;line-height:1.8}
+.su-actions{display:flex;gap:10px;margin-top:14px}
+.su-go{flex:1;border:0;border-radius:14px;padding:13px;font:900 14.5px Cairo,sans-serif;color:#fff;cursor:pointer;background:linear-gradient(135deg,#f97316,#ea580c);box-shadow:0 8px 20px rgba(234,88,12,.3)}
+.su-go[data-armed="1"]{background:linear-gradient(135deg,#ef4444,#b91c1c);animation:suPulse 1s ease infinite}
+.su-go:disabled{opacity:.55;cursor:not-allowed}
+.su-cancel{border:1px solid var(--border,#e2e8f0);border-radius:14px;padding:13px 20px;font:800 14px Cairo,sans-serif;cursor:pointer;background:var(--surface-alt,#f1f5f9);color:inherit}
+.su-select{width:100%;box-sizing:border-box;border:1px solid var(--border,#e2e8f0);border-radius:12px;padding:10px 12px;font:700 14px Cairo,sans-serif;background:var(--surface,#fff);color:inherit;outline:none;margin-bottom:6px}
+.su-select:focus{border-color:#f97316;box-shadow:0 0 0 3px rgba(249,115,22,.15)}
+.su-opt{font-weight:600;color:var(--text-muted,#64748b);font-size:12px}
+.su-eta-hint{min-height:18px;margin:2px 2px 10px;color:#c2410c;font-weight:800;font-size:13px}
+.su-toggle{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;margin:6px 0 4px;border-radius:14px;border:1px solid var(--border,#e2e8f0);background:var(--surface-alt,#f8fafc);cursor:pointer}
+.su-toggle input{width:20px;height:20px;accent-color:#ea580c;margin-top:3px;flex:0 0 auto}
+.su-toggle b{display:block;font-size:13.5px;font-weight:900}
+.su-toggle small{display:block;margin-top:3px;color:var(--text-muted,#64748b);font-size:12px;line-height:1.7}
+.su-toggle:has(input:checked){border-color:#fb923c;background:#fff7ed}
+.um-card-actions button.su-btn.edit{background:linear-gradient(135deg,#eff6ff,#dbeafe)!important;border-color:#93c5fd!important;color:#1d4ed8!important}
+.su-top-btn.edit{background:linear-gradient(135deg,#3b82f6,#1d4ed8);box-shadow:0 8px 20px rgba(29,78,216,.28)}
+@keyframes suFade{from{opacity:0}to{opacity:1}}
+@keyframes suPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.02)}}
+
+</style>
 </head>
 <body>
 
-    <div id="app"><div class="boot-loader" role="status" aria-live="polite"><i></i><span>جاري تحميل المنصة…</span></div></div>
-    <style>
-        .boot-loader{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font:700 15px Cairo,system-ui,sans-serif;color:var(--text,#475569)}
-        .boot-loader i{width:38px;height:38px;border-radius:50%;border:4px solid rgba(100,116,139,.25);border-top-color:var(--primary,#2563eb);animation:bootspin .8s linear infinite}
-        @keyframes bootspin{to{transform:rotate(360deg)}}
-    </style>
+    <div id="app"></div>
 
     <!-- ─── Toast ─── -->
     <div id="toast" class="toast"></div>
@@ -1002,7 +1023,7 @@
             let cards = sections.map((s, i) => {
                 const delay = 'stagger-' + ((i % 7) + 1);
                 const hasImage = s.image && s.image.length > 0;
-                const imgStyle = ''; const imgAttr = hasImage ? `data-bg="${escapeHtml(s.image)}"` : '';
+                const imgStyle = hasImage ? `background-image:url(${s.image})` : '';
                 const placeholderClass = hasImage ? '' : 'placeholder';
                 const titleClass = hasImage ? '' : 'dark';
                 const adminActions = isAdminRole ? `
@@ -1015,7 +1036,7 @@
                 return `
               <div class="box-card anim-fade-up ${delay}" data-act="open-section" data-section="${s.id}">
                 ${adminActions}
-                <div class="card-image ${placeholderClass}" style="${imgStyle}" ${imgAttr}>
+                <div class="card-image ${placeholderClass}" style="${imgStyle}">
                   ${!hasImage ? '<i class="fas fa-folder"></i>' : ''}
                 </div>
                 <div class="card-title ${titleClass}" style="font-weight:${s.textBold===false?'700':'900'};color:${escapeHtml(s.textColor||'#111827')}">${escapeHtml(s.name || 'بدون اسم')}</div>
@@ -1105,7 +1126,7 @@
             let subsHtml = section.subs.map((sub, i) => {
                 const delay = 'stagger-' + ((i % 4) + 1);
                 const hasImage = sub.image && sub.image.length > 0;
-                const imgStyle = ''; const imgAttr = hasImage ? `data-bg="${escapeHtml(sub.image)}"` : '';
+                const imgStyle = hasImage ? `background-image:url(${sub.image})` : '';
                 const placeholderClass = hasImage ? '' : 'placeholder';
                 const titleClass = hasImage ? '' : 'dark';
                 const adminActions = isAdminRole ? `
@@ -1118,7 +1139,7 @@
                 return `
               <div class="sub-card anim-fade-up ${delay}" data-act="open-subsection" data-sub="${sub.id}">
                 ${adminActions}
-                <div class="card-image ${placeholderClass}" style="${imgStyle}" ${imgAttr}>
+                <div class="card-image ${placeholderClass}" style="${imgStyle}">
                   ${!hasImage ? '<i class="fas fa-folder-open"></i>' : ''}
                 </div>
                 <div class="card-title ${titleClass}" style="font-weight:${sub.textBold===false?'700':'900'};color:${escapeHtml(sub.textColor||'#111827')}">${escapeHtml(sub.name || 'بدون اسم')}</div>
@@ -1320,7 +1341,7 @@
 
             let itemsHtml = sub.items.map((it, i) => {
                 const hasImage = it.image && it.image.length > 0;
-                const thumbStyle = ''; const thumbAttr = hasImage ? `data-bg="${escapeHtml(it.image)}"` : '';
+                const thumbStyle = hasImage ? `background-image:url(${it.image})` : '';
                 const thumbClass = hasImage ? '' : 'placeholder';
                 const hasFile = it.fileData && it.fileData.length > 0;
                 const hasDlonlySource = it.previewOverride === 'download_only' && it.dlonlySourceType && (it.dlonlySourceType === 'link' ? !!it.dlonlyLink : !!it.dlonlyFilePath);
@@ -1347,7 +1368,7 @@
                 return `
               <div class="item-row anim-fade-up">
                 ${adminActions}
-                <div class="item-thumb ${thumbClass}" style="${thumbStyle}" ${thumbAttr}>${!hasImage ? '📄' : ''}</div>
+                <div class="item-thumb ${thumbClass}" style="${thumbStyle}">${!hasImage ? '📄' : ''}</div>
                 <div class="item-info">
                   <div class="item-name ${it.name ? '' : 'empty'}" style="font-weight:${it.textBold===false?'700':'900'};color:${escapeHtml(it.textColor||'#111827')}">${escapeHtml(it.name || 'بدون اسم')}</div>
                   ${isAdminRole ? `<div class="item-visibility"><i class="fas fa-eye"></i> ${escapeHtml(visibilityLabel(it.visibilityMode))}</div>` : ''}
@@ -1898,6 +1919,8 @@
                 state.users=profilesRes.data||[];
                 state.userRequests=requestsRes.data||[];
                 state.adminMessages=messagesRes.data||[];
+                await suLoadBlocks();
+                suAdminJoin();
                 await loadWelcomeVideoLibrary();
                 await Promise.all([loadWelcomeVideoRecipientsStatus(), loadWelcomeVideoExcluded()]);
                 try{
@@ -1959,7 +1982,7 @@
                     <div class="um-user-main">
                       <div class="um-avatar">${avatarHtml}</div>
                       <div class="um-user-ident">
-                        <div class="um-name-line"><div class="um-name">${escapeHtml(userDisplayName(u))}</div>${renderTitleChips(u.profile_title)}</div>
+                        <div class="um-name-line"><div class="um-name">${escapeHtml(userDisplayName(u))}</div>${renderTitleChips(u.profile_title)}${(state.updateBlocks||{})[u.id]?`<span class="su-chip"><i class="fas fa-cloud-arrow-up"></i> قيد التحديث</span>`:''}</div>
                         <div class="um-email">${escapeHtml(u.email||'البريد غير مسجل')}</div>
                         <div class="um-meta"><span>${escapeHtml(userDisplayPhone(u))}</span><span>•</span><span>${escapeHtml(date)}</span></div>
                       </div>
@@ -1968,6 +1991,9 @@
                     ${req ? `<div class="um-request-line"><i class="fas fa-file-signature"></i><span>${escapeHtml(requestLabel(req))}</span>${req.note?`<span class="um-note">— ${escapeHtml(req.note)}</span>`:''}</div>`:''}
                     <div class="um-card-actions">
                       <button data-act="user-details" data-user-id="${escapeHtml(u.id)}"><i class="fas fa-eye"></i> التفاصيل</button>
+                      ${suAffectable(u) ? ((state.updateBlocks||{})[u.id]
+                          ? `<button class="su-btn edit" data-act="user-update-edit-one" data-user-id="${escapeHtml(u.id)}"><i class="fas fa-pen"></i> تعديل الإشعار</button><button class="su-btn end" data-act="user-update-end" data-user-id="${escapeHtml(u.id)}"><i class="fas fa-circle-check"></i> إنهاء التحديث</button>`
+                          : `<button class="su-btn" data-act="user-update-one" data-user-id="${escapeHtml(u.id)}"><i class="fas fa-cloud-arrow-up"></i> تحديث</button>`) : ''}
                       ${st.key==='pending' ? `<button class="success" data-act="user-approve" data-user-id="${escapeHtml(u.id)}"><i class="fas fa-check"></i> قبول</button>`:''}
                       ${st.key!=='admin' && st.key!=='revoked' ? `<button data-act="user-revoke" data-user-id="${escapeHtml(u.id)}"><i class="fas fa-ban"></i> رفض / إيقاف</button>`:''}
                       ${st.key==='revoked' ? `<button class="success" data-act="user-approve" data-user-id="${escapeHtml(u.id)}"><i class="fas fa-rotate-left"></i> إعادة تفعيل</button>`:''}
@@ -1986,7 +2012,11 @@
                   <h1><i class="fas fa-users-gear"></i> إدارة المستخدمين</h1>
                   <p>إدارة الحسابات والطلبات والموافقة والرفض والحسابات المؤقتة من داخل المنصة.</p>
                 </div>
-                <button class="um-create" data-act="user-create-temp"><i class="fas fa-user-plus"></i> إنشاء حساب مؤقت</button>
+                <div class="um-head-actions">
+                  <button class="su-top-btn" data-act="user-update-open"><i class="fas fa-cloud-arrow-up"></i> تحديث</button>
+                  ${Object.keys(state.updateBlocks||{}).length ? `<button class="su-top-btn edit" data-act="user-update-edit-open"><i class="fas fa-pen"></i> تعديل الإشعار</button><button class="su-top-btn end" data-act="user-update-end-all"><i class="fas fa-circle-check"></i> إنهاء التحديث (${Object.keys(state.updateBlocks).length})</button>`:''}
+                  <button class="um-create" data-act="user-create-temp"><i class="fas fa-user-plus"></i> إنشاء حساب مؤقت</button>
+                </div>
               </div>
 
               <div class="um-stats">
@@ -1999,7 +2029,7 @@
 
               <div class="um-toolbar">
                 <div class="um-search"><i class="fas fa-search"></i><input id="userSearch" type="search" value="${escapeHtml(state.usersSearch)}" placeholder="ابحث بالاسم أو البريد أو التليفون..."></div>
-                <button class="um-refresh" data-act="refresh-users"><i class="fas fa-rotate"></i> تحديث</button>
+                <button class="um-refresh" data-act="refresh-users"><i class="fas fa-rotate"></i> إعادة تحميل</button>
               </div>
 
               ${state.usersLoading
@@ -2324,6 +2354,8 @@
                   </div>
                 </div>`;
             }
+
+            if (m.kind === 'site-update') { return renderSiteUpdateModal(m); }
 
             if (m.kind === 'force-password') {
                 const u=m.user||{};
@@ -3512,6 +3544,48 @@
                         if(data?.error) throw new Error(data.error);
                         closeModal(); await openUsersManagement(); showToast('تم إنشاء الحساب المؤقت بنجاح.','success');
                     }catch(err){showToast(`تعذر إنشاء الحساب المؤقت: ${err.message||'تأكد من نشر Edge Function.'}`,'error');btn.disabled=false;btn.textContent='إنشاء الحساب';}
+                    break;
+                }
+                case 'user-update-open': {
+                    openModal('site-update',{mode:'bulk'});
+                    break;
+                }
+                case 'user-update-one': {
+                    const u=state.users.find(x=>String(x.id)===String(el.dataset.userId));
+                    if(!u||!suAffectable(u)) return showToast('لا يمكن تطبيق التحديث على هذا الحساب.','error');
+                    openModal('site-update',{mode:'single',user:u});
+                    break;
+                }
+                case 'user-update-edit-open': {
+                    if(!suBlockedMembers().length) return showToast('مفيش أعضاء في التحديث دلوقتي.','error');
+                    openModal('site-update',{mode:'edit'});
+                    break;
+                }
+                case 'user-update-edit-one': {
+                    const u=state.users.find(x=>String(x.id)===String(el.dataset.userId));
+                    if(!u||!(state.updateBlocks||{})[u.id]) return showToast('هذا العضو مش في التحديث.','error');
+                    openModal('site-update',{mode:'edit-one',user:u});
+                    break;
+                }
+                case 'user-update-start': { await suStartFromModal(el); break; }
+                case 'user-update-end': {
+                    const u=state.users.find(x=>String(x.id)===String(el.dataset.userId)); if(!u) break;
+                    askConfirm(`إنهاء التحديث لـ ${userDisplayName(u)} والسماح له بالدخول من جديد؟`, async()=>{
+                        try{
+                            const {error}=await sb.rpc('admin_end_site_update',{p_user_ids:[u.id],p_all:false}); if(error) throw error;
+                            await openUsersManagement(); showToast('تم السماح للعضو بالدخول من جديد.','success');
+                        }catch(err){ showToast(`تعذر إنهاء التحديث: ${err.message||'خطأ'}`,'error'); }
+                    },{confirmLabel:'إنهاء التحديث',confirmClass:'btn-save'});
+                    break;
+                }
+                case 'user-update-end-all': {
+                    const n=Object.keys(state.updateBlocks||{}).length;
+                    askConfirm(`إنهاء التحديث والسماح لـ ${n} عضو بالدخول من جديد؟`, async()=>{
+                        try{
+                            const {error}=await sb.rpc('admin_end_site_update',{p_user_ids:null,p_all:true}); if(error) throw error;
+                            await openUsersManagement(); showToast('تم إنهاء التحديث للجميع.','success');
+                        }catch(err){ showToast(`تعذر إنهاء التحديث: ${err.message||'خطأ'}`,'error'); }
+                    },{confirmLabel:'إنهاء للجميع',confirmClass:'btn-save'});
                     break;
                 }
                 case 'logout': {
@@ -4869,8 +4943,8 @@ async function listWelcomeVideoObjects(path=''){
         }
         async function getWelcomeVideoToShow(){
             try{
-                const [excludedForMe,__res]=await Promise.all([isWelcomeVideoExcludedForMe(),sb.rpc('should_show_welcome_video_for_me')]); if(excludedForMe) return null;
-                const {data,error}=__res;if(error)throw error;if(!data?.should_show||!data?.video_path)return null;return publicStorageUrl('welcome-videos',data.video_path);
+                if(await isWelcomeVideoExcludedForMe()) return null;
+                const {data,error}=await sb.rpc('should_show_welcome_video_for_me');if(error)throw error;if(!data?.should_show||!data?.video_path)return null;return publicStorageUrl('welcome-videos',data.video_path);
             }catch(_){return null;}
         }
         async function markWelcomeVideoViewed(){
@@ -4887,7 +4961,7 @@ async function listWelcomeVideoObjects(path=''){
         }
         async function showWelcomeVideoOnce(onDone=null){
             if(!state.user || isAdmin()){ if(onDone) onDone(); return; }
-            const url=await (window.__welcomePre||getWelcomeVideoToShow()); window.__welcomePre=null; if(!url){ if(onDone) onDone(); return; }
+            const url=await getWelcomeVideoToShow(); if(!url){ if(onDone) onDone(); return; }
             const overlay=document.createElement('div'); overlay.className='welcome-video-overlay show';
             overlay.innerHTML=`<div class="welcome-video-shell"><video class="welcome-video" playsinline preload="auto" autoplay></video><div class="welcome-video-sound-gate" style="display:none"><button type="button" class="welcome-video-sound-btn">🔊 تشغيل الفيديو بالصوت</button></div></div>`;
             document.body.appendChild(overlay); const video=overlay.querySelector('video'), gate=overlay.querySelector('.welcome-video-sound-gate');
@@ -5038,12 +5112,12 @@ async function listWelcomeVideoObjects(path=''){
             }
         }
 
-        async function loadNotifCenterList(background=false){
+        async function loadNotifCenterList(){
             try{
                 const {data,error}=await sb.rpc('notif_center_my_list_v2');
                 if(error) throw error;
                 state.notifCenterList = data || [];
-                if(background){ primeNotifCenterMediaUrls(state.notifCenterList).catch(()=>{}); } else { await primeNotifCenterMediaUrls(state.notifCenterList); }
+                await primeNotifCenterMediaUrls(state.notifCenterList);
             }catch(err){
                 console.warn('notif list load failed',err);
                 state.notifCenterList = [];
@@ -5052,7 +5126,7 @@ async function listWelcomeVideoObjects(path=''){
         }
 
         async function loadNotifCenter(){
-            await Promise.all([loadNotifCenterSettings(), loadNotifCenterList(true)]);
+            await Promise.all([loadNotifCenterSettings(), loadNotifCenterList()]);
         }
 
         function notifCenterUnreadCount(){
@@ -5267,11 +5341,12 @@ async function listWelcomeVideoObjects(path=''){
                 if(!admin&&profile.status==='pending'){renderAccessMessage('الحساب في انتظار الموافقة','بعد الموافقة ستتمكن من الدخول.');return;}
                 if(!admin&&(profile.must_change_credentials||profile.account_type==='temporary'||profile.is_temporary===true)){renderAccessMessage('الحساب مؤقت','ارجع للموقع من البداية وأكمل بيانات الحساب أولًا.');return;}
                 if(!admin&&profile.must_change_password){renderAccessMessage('تغيير كلمة السر مطلوب','ارجع للموقع من البداية لتعيين كلمة سر جديدة قبل دخول الموقع.');return;}
+                if(profile.role!=='admin'&&profile.role!=='super_admin'){ const blk=await suCheckBlock(); if(blk&&blk.blocked) return; }
                 state.role=profile.role==='super_admin'?'super_admin':(admin?'admin':(profile.role==='moderator'?'moderator':'member'));
                 state.user={id:profile.id||session.user.id, name:profile.full_name||profile.name||session.user.user_metadata?.full_name||'عضو',email:profile.email||session.user.email||'',phone:profile.phone_number||profile.phone||'',avatar:publicStorageUrl('avatars',profile.avatar_path||profile.avatar_url), profile_title:profile.profile_title||'', visible_titles:(profile.visible_titles!=null?profile.visible_titles:null), isOwnerAdmin:!!profile.is_owner_admin};
                 const firstOpen=!profile.first_opened_at&&!profile.first_seen_at;
-                const __openP=Promise.resolve(sb.rpc('record_user_open')).then(()=>{},()=>{});
-                if(!isAdmin()) window.__welcomePre=__openP.then(()=>getWelcomeVideoToShow());
+                void sb.rpc('record_user_open').then(()=>{},()=>{});
+                if(state.role!=='admin'&&state.role!=='super_admin') suStartWatch();
                 await Promise.all([loadData(),loadPlatformManager(),loadWelcomeVideoCampaign(),loadPlatformButtons(),loadNotifCenter(),loadDragonControls()]);state.view='home';render();
                 await new Promise(resolve=>showWelcomeVideoOnce(()=>{if(firstOpen) openModal('first-welcome',{});resolve();}));
                 try{
@@ -5322,8 +5397,261 @@ async function listWelcomeVideoObjects(path=''){
             }
         });
 
+
+        // ════════════════════════════════════════════════════════════════════
+        //  SITE UPDATE MODE — تحديث الموقع
+        // ════════════════════════════════════════════════════════════════════
+        const SU_DEFAULT_MSG='آسفين، لكن مش هتقدر تدخل الموقع دلوقتي لوجود تحديث. حاول الدخول مرة أخرى في وقت لاحق.';
+        const SU_UG_DEFAULT='آسفين، لكن مش هتقدر تدخل الموقع دلوقتي لوجود تحديث.\nحاول الدخول مرة أخرى في وقت لاحق.';
+        const SU_ETA_OPTIONS=[['none','بدون توقيت'],['30','بعد 30 دقيقة'],['60','بعد ساعة'],['120','بعد ساعتين'],['180','بعد 3 ساعات'],['360','بعد 6 ساعات'],['720','بعد 12 ساعة'],['1440','بعد 24 ساعة'],['custom','وقت محدد…']];
+        function suAffectable(u){ return !!u && u.role!=='admin' && u.role!=='super_admin' && !u.is_owner_admin; }
+        async function suLoadBlocks(){
+            try{
+                const {data,error}=await sb.rpc('admin_list_site_update_blocks'); if(error) throw error;
+                const m={}; (data||[]).forEach(r=>{ m[r.user_id]=r; }); state.updateBlocks=m;
+            }catch(_){ state.updateBlocks=state.updateBlocks||{}; }
+        }
+        function suMembers(){ return (state.users||[]).filter(suAffectable); }
+        function suBlockedMembers(){ const b=state.updateBlocks||{}; return suMembers().filter(u=>b[u.id]); }
+        function suIsEdit(m){ return !!m&&(m.mode==='edit'||m.mode==='edit-one'); }
+        function suPoolFor(m){ return (m&&m.mode==='edit')?suBlockedMembers():suMembers(); }
+        function suEtaText(iso){
+            if(!iso) return ''; const d=new Date(iso); if(isNaN(d.getTime())) return '';
+            const now=new Date(); if(d.getTime()<=now.getTime()) return 'قريبًا';
+            const t=d.toLocaleTimeString('ar-EG',{hour:'numeric',minute:'2-digit'});
+            if(d.toDateString()===now.toDateString()) return 'اليوم الساعة '+t;
+            if(d.toDateString()===new Date(now.getTime()+864e5).toDateString()) return 'بكرة الساعة '+t;
+            return d.toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long'})+' الساعة '+t;
+        }
+        function suLocalInput(d){ const p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes()); }
+        function suReadEta(){
+            const mode=document.getElementById('su-eta-mode')?.value||'none';
+            if(mode==='none') return {ok:true,iso:null};
+            if(mode==='custom'){
+                const v=document.getElementById('su-eta-custom')?.value;
+                if(!v) return {ok:false,err:'اختار التاريخ والوقت المتوقع.'};
+                const d=new Date(v); if(isNaN(d.getTime())) return {ok:false,err:'الوقت المتوقع غير صالح.'};
+                return {ok:true,iso:d.toISOString()};
+            }
+            return {ok:true,iso:new Date(Date.now()+(+mode)*60000).toISOString()};
+        }
+        function suEtaHint(){
+            const h=document.getElementById('su-eta-hint'); if(!h) return;
+            const r=suReadEta(); const t=r.ok&&r.iso?suEtaText(r.iso):'';
+            h.textContent=t?`هيظهر للعضو: ⏱ المتوقع: ${t}`:(r.ok?'مفيش توقيت هيظهر للعضو.':'');
+        }
+        function suAvatar(u){
+            const a=publicStorageUrl('avatars',u.avatar_path||u.avatar_url);
+            const ch=(userDisplayName(u).replace('الاسم غير مسجل','؟').trim().charAt(0)||'؟').toUpperCase();
+            return a?`<img src="${escapeHtml(a)}" alt="">`:escapeHtml(ch);
+        }
+        function renderSiteUpdateModal(m){
+            const mode=m.mode, single=(mode==='single'||mode==='edit-one'), editing=suIsEdit(m);
+            const pool=suPoolFor(m), blocks=state.updateBlocks||{};
+            const first=editing?(single?blocks[m.user.id]:blocks[(pool[0]||{}).id])||null:null;
+            const preMsg=first&&first.message?first.message:'';
+            const preEta=first&&first.eta_at?suLocalInput(new Date(first.eta_at)):'';
+            const rows=pool.map(u=>`<label class="su-row" data-su-name="${escapeHtml((userDisplayName(u)+' '+(u.email||'')+' '+userDisplayPhone(u)).toLowerCase())}">
+                <input type="checkbox" class="su-cb" value="${escapeHtml(u.id)}">
+                <span class="su-av">${suAvatar(u)}</span>
+                <span class="su-nm"><b>${escapeHtml(userDisplayName(u))}</b><small>${escapeHtml(u.email||'البريد غير مسجل')}</small></span>
+                ${blocks[u.id]?'<span class="su-chip">قيد التحديث</span>':''}
+            </label>`).join('');
+            const title=mode==='single'?`تحديث الموقع للعضو: ${escapeHtml(userDisplayName(m.user))}`:mode==='edit-one'?`تعديل إشعار: ${escapeHtml(userDisplayName(m.user))}`:mode==='edit'?'تعديل إشعار التحديث':'تحديث الموقع';
+            const sub=mode==='single'?'هيتم تسجيل خروج العضو لو كان فاتح الموقع، ولن يقدر يدخل لحد ما تنهي التحديث.'
+                :mode==='edit-one'?'الإشعار الجديد هيظهر للعضو أول ما يحاول يدخل.'
+                :mode==='edit'?'الإشعار الجديد هيظهر لكل الأعضاء اللي في التحديث دلوقتي. علّم على اللي مش عاوز إشعارهم يتغيّر.'
+                :'اختار مين يتأثر بالتحديث. هيتم تسجيل خروج اللي فاتح الموقع، واللي يحاول يدخل هتظهر له رسالة التحديث.';
+            const summary=single?(editing?'هيتعدّل إشعار عضو واحد.':'هيتأثر عضو واحد.'):(editing?`هيتعدّل إشعار ${pool.length} عضو من ${pool.length}`:`هيتأثر ${pool.length} عضو من ${pool.length}`);
+            const etaOpts=SU_ETA_OPTIONS.map(([v,l])=>`<option value="${v}" ${(preEta&&v==='custom')?'selected':''}>${l}</option>`).join('');
+            setTimeout(suEtaHint,0);
+            return `<div class="su-overlay" data-act="close-modal-overlay"><div class="su-modal" data-stop="1" dir="rtl">
+                <div class="su-modal-icon"><i class="fas ${editing?'fa-pen':'fa-cloud-arrow-up'}"></i></div>
+                <h3>${title}</h3>
+                <p class="su-sub">${sub}</p>
+                ${single?'':`
+                ${editing?'':`<div class="su-seg">
+                    <label><input type="radio" name="su-scope" value="all" checked><span>كل الأعضاء</span></label>
+                    <label><input type="radio" name="su-scope" value="selected"><span>أعضاء محددين</span></label>
+                </div>`}
+                <div class="su-pick">
+                    <div class="su-pick-head"><b id="su-pick-title">استثناء</b><small id="su-pick-hint">${editing?'علّم على اللي مش عاوز إشعارهم يتغيّر.':'علّم على اللي مش عاوزهم يتأثروا (هيفضلوا يدخلوا عادي).'}</small></div>
+                    <input class="su-search" type="search" placeholder="ابحث بالاسم أو البريد…">
+                    <div class="su-tools"><button type="button" class="su-link" data-su="all">تحديد الكل</button><button type="button" class="su-link" data-su="none">إلغاء التحديد</button></div>
+                    <div class="su-list">${rows||'<div class="su-sub">لا يوجد أعضاء.</div>'}</div>
+                </div>`}
+                <div class="su-field-title">الرسالة اللي هتظهر للعضو عند محاولة الدخول</div>
+                <div class="su-seg">
+                    <label><input type="radio" name="su-msgmode" value="default" ${preMsg?'':'checked'}><span>الرسالة الافتراضية</span></label>
+                    <label><input type="radio" name="su-msgmode" value="custom" ${preMsg?'checked':''}><span>رسالة معدلة</span></label>
+                </div>
+                <div id="su-default-box" class="su-preview" style="display:${preMsg?'none':'block'}">${escapeHtml(SU_DEFAULT_MSG)}</div>
+                <div id="su-custom-box" style="display:${preMsg?'block':'none'}"><textarea id="su-msg" maxlength="1000">${escapeHtml(preMsg||SU_DEFAULT_MSG)}</textarea><span class="su-count" id="su-count"></span></div>
+                <div class="su-field-title" style="margin-top:14px">التوقيت المتوقع للانتهاء <span class="su-opt">(اختياري)</span></div>
+                <select id="su-eta-mode" class="su-select">${etaOpts}</select>
+                <input type="datetime-local" id="su-eta-custom" class="su-select" value="${escapeHtml(preEta)}" style="display:${preEta?'block':'none'}">
+                <div class="su-eta-hint" id="su-eta-hint"></div>
+                <label class="su-toggle"><input type="checkbox" id="su-show-end" ${first&&first.show_on_end?'checked':''}><span><b>إظهار الرسالة على شاشة "انتهت الجلسة"</b><small>للعضو اللي فاتح الموقع وقت التحديث: تظهر له رسالتك والتوقيت، ولازم يضغط "تمام" قبل ما يتحول لتسجيل الدخول. لو مقفول: تظهر شاشة عادية بعدّاد وتحوّله لتسجيل الدخول تلقائيًا.</small></span></label>
+                <div class="su-summary" id="su-summary">${summary}</div>
+                <div class="su-actions"><button class="su-go" id="su-go" data-act="user-update-start"><i class="fas ${editing?'fa-floppy-disk':'fa-cloud-arrow-up'}"></i> ${editing?'حفظ التعديل':'ابدأ التحديث'}</button><button class="su-cancel" data-act="close-modal">إلغاء</button></div>
+            </div></div>`;
+        }
+        function suSyncScope(){
+            const scope=document.querySelector('input[name="su-scope"]:checked')?.value||'all';
+            const t=document.getElementById('su-pick-title'), h=document.getElementById('su-pick-hint');
+            if(!t||!h) return;
+            if(scope==='all'){ t.textContent='استثناء'; h.textContent='علّم على اللي مش عاوزهم يتأثروا (هيفضلوا يدخلوا عادي).'; }
+            else { t.textContent='اختار الأعضاء'; h.textContent='علّم على الأعضاء اللي عاوز التحديث يتطبق عليهم بس.'; }
+            suSyncSummary();
+        }
+        function suSyncSummary(){
+            const box=document.getElementById('su-summary'), go=document.getElementById('su-go');
+            const m=state.modal; if(!box||!m||m.mode==='single'||m.mode==='edit-one') return;
+            const editing=suIsEdit(m), verb=editing?'هيتعدّل إشعار':'هيتأثر';
+            const total=suPoolFor(m).length, checked=document.querySelectorAll('.su-cb:checked').length;
+            const scope=editing?'all':(document.querySelector('input[name="su-scope"]:checked')?.value||'all');
+            const n=scope==='all'?total-checked:checked;
+            box.textContent=n>0?(scope==='all'?`${verb} ${n} عضو من ${total}${checked?` (مستثنى ${checked})`:''}`:`${verb} ${n} عضو`):'لا يوجد أعضاء متأثرين — عدّل الاختيار.';
+            if(go){ go.disabled=n<=0; go.dataset.armed=''; if(go._orig){ go.innerHTML=go._orig; } }
+        }
+        function suSyncMsg(){
+            const custom=document.querySelector('input[name="su-msgmode"]:checked')?.value==='custom';
+            const d=document.getElementById('su-default-box'), c=document.getElementById('su-custom-box');
+            if(d) d.style.display=custom?'none':'block';
+            if(c) c.style.display=custom?'block':'none';
+            const ta=document.getElementById('su-msg'), cnt=document.getElementById('su-count');
+            if(custom&&ta){ if(cnt) cnt.textContent=`${ta.value.length} / 1000`; ta.focus(); }
+        }
+        document.addEventListener('change',e=>{
+            const t=e.target; if(!t||!t.closest||!t.closest('.su-modal')) return;
+            if(t.name==='su-scope') suSyncScope();
+            else if(t.name==='su-msgmode') suSyncMsg();
+            else if(t.classList.contains('su-cb')) suSyncSummary();
+            else if(t.id==='su-eta-mode'){ const c=document.getElementById('su-eta-custom'); if(c) c.style.display=t.value==='custom'?'block':'none'; suEtaHint(); }
+            else if(t.id==='su-eta-custom') suEtaHint();
+        });
+        document.addEventListener('input',e=>{
+            const t=e.target; if(!t||!t.closest||!t.closest('.su-modal')) return;
+            if(t.id==='su-msg'){ const c=document.getElementById('su-count'); if(c) c.textContent=`${t.value.length} / 1000`; }
+            else if(t.id==='su-eta-custom') suEtaHint();
+            else if(t.classList.contains('su-search')){
+                const q=t.value.trim().toLowerCase();
+                document.querySelectorAll('.su-row').forEach(r=>{ r.style.display=(!q||(r.dataset.suName||'').includes(q))?'':'none'; });
+            }
+        });
+        document.addEventListener('click',e=>{
+            const b=e.target&&e.target.closest?e.target.closest('[data-su]'):null; if(!b||!b.closest('.su-modal')) return;
+            const on=b.dataset.su==='all';
+            document.querySelectorAll('.su-row').forEach(r=>{ if(r.style.display==='none') return; const cb=r.querySelector('.su-cb'); if(cb) cb.checked=on; });
+            suSyncSummary();
+        });
+        async function suStartFromModal(btn){
+            const m=state.modal; if(!m) return;
+            const single=(m.mode==='single'||m.mode==='edit-one'), editing=suIsEdit(m);
+            const pool=suPoolFor(m);
+            let ids=null, exclude=null, all=false, n=0, affected=[];
+            if(single){ ids=[m.user.id]; n=1; affected=[m.user.id]; }
+            else{
+                const scope=editing?'all':(document.querySelector('input[name="su-scope"]:checked')?.value||'all');
+                const checked=[...document.querySelectorAll('.su-cb:checked')].map(c=>c.value);
+                if(scope==='all'){ all=true; exclude=checked; affected=pool.map(u=>u.id).filter(id=>!checked.includes(id)); n=affected.length; }
+                else { ids=checked; n=checked.length; affected=checked.slice(); }
+            }
+            if(n<=0) return showToast('مفيش أعضاء متأثرين. عدّل الاختيار.','error');
+            let msg=null;
+            if(document.querySelector('input[name="su-msgmode"]:checked')?.value==='custom'){
+                msg=(document.getElementById('su-msg')?.value||'').trim();
+                if(!msg) return showToast('اكتب الرسالة المعدلة أو اختار الرسالة الافتراضية.','error');
+                if(msg===SU_DEFAULT_MSG) msg=null;
+            }
+            const eta=suReadEta(); if(!eta.ok) return showToast(eta.err,'error');
+            const showEnd=!!document.getElementById('su-show-end')?.checked;
+            if(!editing && btn.dataset.armed!=='1'){
+                btn._orig=btn.innerHTML; btn.dataset.armed='1';
+                btn.innerHTML=`<i class="fas fa-triangle-exclamation"></i> اضغط تاني للتأكيد — خروج ${n} عضو`;
+                clearTimeout(btn._t); btn._t=setTimeout(()=>{ btn.dataset.armed=''; if(btn._orig) btn.innerHTML=btn._orig; },6000);
+                return;
+            }
+            clearTimeout(btn._t); btn._orig=btn._orig||btn.innerHTML; btn.disabled=true; btn.textContent='جاري التنفيذ…';
+            try{
+                const {data,error}=await sb.rpc(editing?'admin_edit_site_update':'admin_start_site_update',{p_user_ids:ids,p_exclude_ids:exclude,p_all:all,p_message:msg,p_eta:eta.iso,p_show_on_end:showEnd});
+                if(error) throw error;
+                closeModal(); await openUsersManagement();
+                if(editing) showToast(`تم تعديل الإشعار لـ ${data?.updated??n} عضو.`,'success');
+                else { showToast(`تم بدء التحديث لـ ${data?.affected??n} عضو. هتأكد بعد 10 ثواني إنهم خرجوا…`,'success'); suVerifyKick(affected); }
+            }catch(err){
+                showToast(`تعذر التنفيذ: ${err.message||'خطأ غير معروف'}`,'error');
+                btn.disabled=false; btn.dataset.armed=''; btn.innerHTML=btn._orig||'تنفيذ';
+            }
+        }
+
+        // ── جانب العضو: بدون أي فحص دوري. السيرفر هو اللي يبلّغ العضو لحظة التحديث (Realtime) ──
+        let suEnded=false, suCh=null, suPresenceCh=null, suSubscribedOnce=false;
+        function suShowEnded(info){
+            if(suEnded) return; suEnded=true;
+            try{ if(suPresenceCh) suPresenceCh.untrack(); }catch(_){}
+            try{ sb.removeAllChannels(); }catch(_){}
+            try{ Promise.resolve(sb.auth.signOut()).catch(()=>{}); }catch(_){}
+            const loginUrl='../index.html';   // يفتح الموقع من الأول (صفحة تسجيل الدخول)
+            if(info&&info.blocked&&info.show_on_end){
+                // الأدمن مفعّل "إظهار الرسالة": رسالة التحديث + التوقيت، ولازم العضو يضغط تمام (من غير تحويل تلقائي)
+                let msg=info.is_custom?info.message:SU_UG_DEFAULT;
+                const eta=suEtaText(info.eta_at); if(eta) msg+='\n\n⏱ المتوقع: '+eta;
+                SessionEnded.show({title:'الموقع بيتحدّث دلوقتي',message:msg,badge:info.is_custom?'رسالة من الإدارة':'تحديث جاري',buttonText:'تمام، تسجيل الدخول',manual:true,loginUrl});
+            }else if(info&&info.blocked){
+                // الشاشة العادية: عدّاد وتحويل تلقائي لتسجيل الدخول
+                SessionEnded.show({seconds:6,loginUrl});
+            }else{
+                // انتهاء جلسة عادي (مش بسبب تحديث)
+                SessionEnded.show({title:'انتهت الجلسة',message:'انتهت جلستك. هنحوّلك لصفحة تسجيل الدخول بعد لحظات.',badge:'الجلسة',seconds:6,loginUrl});
+            }
+        }
+        async function suCheckBlock(){
+            if(suEnded) return null;
+            try{
+                const {data,error}=await sb.rpc('get_my_update_block'); if(error) return null;
+                if(data&&data.blocked) suShowEnded(data);
+                return data;
+            }catch(_){ return null; }
+        }
+        function suStartWatch(){
+            if(suCh||suEnded) return;
+            const uid=state.user&&state.user.id; if(!uid) return;
+            try{
+                // 1) السيرفر يبعت حدث لحظة ما الأدمن يبدأ التحديث لهذا العضو بالذات
+                suCh=sb.channel('site-update-'+uid)
+                  .on('postgres_changes',{event:'*',schema:'public',table:'site_update_blocks',filter:'user_id=eq.'+uid},p=>{ if(p&&p.eventType!=='DELETE') suCheckBlock(); })
+                  .subscribe(st=>{ if(st==='SUBSCRIBED'){ if(suSubscribedOnce) suCheckBlock(); suSubscribedOnce=true; } }); // بعد انقطاع الاتصال ورجوعه فقط
+                // 2) حضور العضو (عشان الأدمن يتأكد بعد 10 ثواني) + إشعار احتياطي
+                suPresenceCh=sb.channel('site-presence',{config:{presence:{key:uid}}})
+                  .on('broadcast',{event:'site-update'},m=>{ const ids=m&&m.payload&&m.payload.ids; if(Array.isArray(ids)&&ids.includes(uid)) suCheckBlock(); })
+                  .subscribe(st=>{ if(st==='SUBSCRIBED'){ try{ suPresenceCh.track({uid}); }catch(_){} } });
+            }catch(e){ console.warn('site-update watch failed',e); }
+        }
+
+        // ── جانب الأدمن: التأكد بعد 10 ثواني إن المتأثرين خرجوا فعلًا ──
+        let suAdminCh=null;
+        function suAdminJoin(){
+            if(suAdminCh) return;
+            try{ suAdminCh=sb.channel('site-presence',{config:{presence:{key:'admin-'+(state.user&&state.user.id||'x')}}}).subscribe(); }catch(_){}
+        }
+        function suOnlineIds(){ try{ return new Set(Object.keys(suAdminCh.presenceState())); }catch(_){ return new Set(); } }
+        function suVerifyKick(ids){
+            if(!suAdminCh||!ids||!ids.length) return;
+            setTimeout(()=>{
+                const still=ids.filter(id=>suOnlineIds().has(String(id)));
+                if(!still.length){ showToast('اتأكدت: كل الأعضاء المتأثرين خرجوا ✅','success'); return; }
+                try{ suAdminCh.send({type:'broadcast',event:'site-update',payload:{ids:still}}); }catch(_){}
+                showToast(`${still.length} عضو لسه ظاهرين فاتحين الموقع — بعتنا لهم إشعار تاني…`,'info');
+                setTimeout(()=>{
+                    const left=still.filter(id=>suOnlineIds().has(String(id)));
+                    showToast(left.length?`${left.length} عضو لسه ظاهرين (غالبًا تبويبهم في الخلفية، وهيخرجوا أول ما يفتحوه)`:'اتأكدت: كل الأعضاء المتأثرين خرجوا ✅', left.length?'info':'success');
+                },8000);
+            },10000);
+        }
+
         let explicitLogout=false;
-        sb.auth.onAuthStateChange((event)=>{if(event==='SIGNED_OUT'&&explicitLogout)location.replace('../index.html');});
+        sb.auth.onAuthStateChange((event)=>{if(event==='SIGNED_OUT'&&explicitLogout)location.replace('../index.html'); else if(event==='SIGNED_OUT'&&!explicitLogout&&!suEnded&&typeof currentAuthUser!=='undefined'&&currentAuthUser) suShowEnded(null);});
 
 
 
@@ -5350,20 +5678,11 @@ if (!window.__midadDragonThemeObserver) {
   window.__midadDragonThemeObserver.observe(document.documentElement,{attributes:true,attributeFilter:['data-midad-theme']});
 }
 </script>
-<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" async crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script src="../midad-round5.js"></script>
 <script>bootApp();</script>
 <script src="theme-common.js"></script>
 <script src="theme-system.js"></script>
-<script>
-if('serviceWorker' in navigator){
-  window.addEventListener('load',function(){
-    (window.requestIdleCallback||function(f){setTimeout(f,1200)})(function(){
-      navigator.serviceWorker.register('../sw.js').catch(function(){});
-    });
-  });
-}
-</script>
 </body>
 </html>
 
